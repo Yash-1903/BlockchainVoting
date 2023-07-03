@@ -1,0 +1,30 @@
+body{
+    text-align:center;
+    background-image: url("abstract-luxury-gradient-blue-background-smooth-dark-blue-with-black-vignette-studio-banner.jpg");
+    color: white;
+    font-family: 'Fjalla One', sans-serif;
+
+}
+
+.btn {
+    margin: 15px;
+    -webkit-border-radius: 12;
+    -moz-border-radius: 12;
+    border-radius: 12px;
+    font-family: Arial;
+    font-size: 20px;
+    padding: 10px 20px 10px 20px;
+    border: solid #ffffff 2px;
+    text-decoration: none;
+  }
+
+select, input {
+    background: none;
+    border: white solid 1px;
+    outline: none;
+    padding: 10px;
+    margin: 10px 5px 10px 5px;
+    color: white;
+    /* Additional styling */
+    /* Add your custom styles here */
+  }
