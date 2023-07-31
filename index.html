@@ -1,257 +1,27 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Voting Application</title>
-        <link rel="stylesheet" href="style.css">
 
 </head>
 <body>
-    <h1>Voting Application</h1>
-    <h2>Candidates</h2>
-    <ul id="candidateList"></ul>
+  <h1>Blockchain-based Voting Application</h1>
+  <div>
+    <h2>Contract Owner: <span id="ownerAddress">Unknown</span></h2>
+  </div>
+  <div>
+    <h3>Candidates:</h3>
+    <ul id="candidatesList"></ul>
+  </div>
+  <div>
+    <h3>Cast Your Vote</h3>
+    <select id="candidateSelect"></select>
+    <button id="voteButton">Vote</button>
+  </div>
+  <div>
+    <h3>Winner: <span id="winnerName">Unknown</span></h3>
+  </div>
 
-    <h2>Register Voter</h2>
-    <form id="voterRegistrationForm">
-        <input type="text" id="voterAddress" placeholder="Enter voter address" required>
-        <button type="submit">Register Voter</button>
-    </form>
-
-    <h2>Vote</h2>
-    <form id="votingForm">
-        <select id="candidateSelect" required>
-            <option value="" disabled selected>Select a candidate</option>
-        </select>
-        <button type="submit">Vote</button>
-    </form>
-
-    <h2>Close Voting</h2>
-    <button id="closeVotingButton">Close Voting</button>
-
-    <h2>Winner</h2>
-    <div id="winner"></div>
-    <script src="https://code.jquery.com/jquery-3.7.0.js" integrity="sha256-JlqSTELeR4TLqP0OG9dxM7yDPqX1ox/HfgiSLBj8+kM=" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/web3js-cdn@1.3.0/web3.min.js"></script>
-
-    <script>
-        // Connect to the Ethereum network using Web3.js or ethers.js
-
-        // Initialize the contract instance
-        const contractAddress = "0x38874b4c43b0aD3f1812De30a2eBfcb42Df5AB18";
-        const contractABI = [
-	{
-		"inputs": [
-			{
-				"internalType": "string",
-				"name": "_name",
-				"type": "string"
-			}
-		],
-		"name": "addCandidate",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "closeVoting",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "_voterAddress",
-				"type": "address"
-			}
-		],
-		"name": "registerVoter",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "uint256",
-				"name": "_candidateId",
-				"type": "uint256"
-			}
-		],
-		"name": "vote",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"name": "candidates",
-		"outputs": [
-			{
-				"internalType": "string",
-				"name": "name",
-				"type": "string"
-			},
-			{
-				"internalType": "uint256",
-				"name": "voteCount",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "getCandidateCount",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "getCandidateNames",
-		"outputs": [
-			{
-				"internalType": "string[]",
-				"name": "",
-				"type": "string[]"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "getWinner",
-		"outputs": [
-			{
-				"internalType": "string",
-				"name": "",
-				"type": "string"
-			},
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "",
-				"type": "address"
-			}
-		],
-		"name": "voters",
-		"outputs": [
-			{
-				"internalType": "bool",
-				"name": "hasVoted",
-				"type": "bool"
-			},
-			{
-				"internalType": "uint256",
-				"name": "votedCandidateId",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "votingClosed",
-		"outputs": [
-			{
-				"internalType": "bool",
-				"name": "",
-				"type": "bool"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	}
-];
-        const contract = new ethers.Contract(contractAddress, contractABI, provider);
-
-        // Function to load the candidate list
-        async function loadCandidateList() {
-            const candidateCount = await contract.getCandidateCount();
-
-            for (let i = 0; i < candidateCount; i++) {
-                const candidateName = await contract.candidates(i);
-                const option = document.createElement('option');
-                option.value = i;
-                option.textContent = candidateName;
-                document.getElementById('candidateSelect').appendChild(option);
-            }
-        }
-
-        // Event listener for voter registration form submission
-        document.getElementById('voterRegistrationForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const voterAddress = document.getElementById('voterAddress').value;
-
-            try {
-                await contract.registerVoter(voterAddress);
-                alert('Voter registered successfully.');
-            } catch (error) {
-                alert(error.message);
-            }
-        });
-
-        // Event listener for voting form submission
-        document.getElementById('votingForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const candidateId = document.getElementById('candidateSelect').value;
-
-            try {
-                await contract.vote(candidateId);
-                alert('Vote casted successfully.');
-            } catch (error) {
-                alert(error.message);
-            }
-        });
-
-        // Event listener for close voting button click
-        document.getElementById('closeVotingButton').addEventListener('click', async () => {
-            try {
-                await contract.closeVoting();
-                alert('Voting closed successfully.');
-            } catch (error) {
-                alert(error.message);
-            }
-        });
-
-        // Function to load the winner
-        async function loadWinner() {
-            const winner = await contract.getWinner();
-            document.getElementById('winner').textContent = `Winner: ${winner[0]} (${winner[1]} votes)`;
-        }
-
-        // Load the candidate list and winner on page load
-        window.addEventListener('load', async () => {
-            await loadCandidateList();
-            await loadWinner();
-        });
-    </script>
+  <script src="https://cdn.jsdelivr.net/npm/web3/dist/web3.min.js"></script>
+  <script src="./main.js"></script>
 </body>
 </html>
